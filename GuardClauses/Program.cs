@@ -12,14 +12,9 @@ Console.WriteLine("Hello, World!");
 
 static void ProcessOrder(Order order)
 {
-    // ArgumentNullException.ThrowIfNull(order);
-    Ensure.NotNull(order, nameof(order));
-    
-    // ArgumentException.ThrowIfNullOrEmpty(order.CustomerName);
-    Ensure.NotNullOrEmpty(order.CustomerName, nameof(order.CustomerName));
-    
-    // ArgumentNullException.ThrowIfNull(order.Products);
-    Ensure.NotNullOrEmptyList(order.Products, nameof(order.Products));
+    Ensure.NotNull(order);
+    Ensure.NotNullOrEmpty(order.CustomerName);
+    Ensure.NotNullOrEmptyList(order.Products);
 
     Console.WriteLine($"User {order.CustomerName} has ordered:");
 
