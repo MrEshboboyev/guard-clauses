@@ -1,139 +1,213 @@
-# 🛡️ Guard Clauses in .NET  
+# 🛡️ Advanced Guard Clauses in .NET
 
-This repository provides a comprehensive guide to implementing **guard clauses** in **.NET**. Guard clauses are a powerful tool in defensive programming, ensuring that your code fails fast when encountering invalid input or unexpected conditions.  
+This repository demonstrates the **true potential and power of guard clauses** in **.NET**, showcasing how they can be used to create robust, maintainable, and professional-grade applications. Guard clauses are essential for defensive programming, ensuring that your code fails fast when encountering invalid input or unexpected conditions.
 
-In this project, you'll explore:  
-1. Using built-in .NET features for guard clauses.  
-2. Implementing custom guard clauses tailored to your needs.  
-3. Practical examples with **Order** and **Customer** objects in a console application.  
+Unlike basic implementations, this project shows how guard clauses can be leveraged in a full-featured web API with Swagger documentation, demonstrating their real-world applicability.
 
-## 🌟 Features  
+## 🌟 Features
 
-### Core Concepts  
-- **Built-in Guard Clauses**: Using .NET features like `ArgumentNullException`, `ArgumentException`, and `ArgumentOutOfRangeException` for input validation.  
-- **Custom Guard Clauses**: Creating reusable, maintainable, and expressive validation methods.  
+### Comprehensive Guard Clause Library
+- **Null Checks**: `NotNull<T>()` for reference types
+- **String Validation**: `NotNullOrEmpty()` for strings
+- **Collection Validation**: `NotNullOrEmptyList<T>()` for collections
+- **Range Validation**: `InRange<T>()` for comparable values
+- **Numeric Validation**: `NotNegative()`, `NotZeroOrNegative()` for numeric types
+- **Pattern Matching**: `MatchesRegex()` for string pattern validation
+- **Default Value Checks**: `NotDefault<T>()` for value types
 
-### Practical Examples  
-- **Order Example**: Validates order properties such as quantity and price.  
-- **Customer Example**: Ensures customer properties like name and age meet expected constraints.  
+### Professional Web API Implementation
+- **RESTful API Design**: Clean controllers with proper HTTP status codes
+- **Swagger Integration**: Full API documentation with NSwag
+- **Real-World Examples**: Order and Customer management scenarios
+- **Comprehensive Error Handling**: Consistent error responses using guard clauses
 
-## 📂 Repository Structure  
+### Advanced Concepts
+- **Return Values**: Guard clauses return validated values for fluent APIs
+- **Generic Constraints**: Type-safe validation with generics
+- **Expression-Based Parameter Names**: Automatic parameter name detection
+- **Performance Optimized**: Minimal overhead with maximum protection
+
+## 📂 Repository Structure
 
 ```
-📦 GuardClauses  
- ┣ 📂 GuardClauses            # Console application showcasing guard clauses in action  
- ┣ 📂 Tests                 # Unit tests for built-in and custom guard clauses  (coming soon)
-```  
+📦 GuardClauses
+ ┣ 📂 Controllers              # REST API controllers demonstrating guard clause usage
+ ┣ 📂 UnitTests               # NUnit tests for guard clauses
+ ┣ 📜 Ensure.cs               # Comprehensive guard clause implementations
+ ┣ 📜 Order.cs                # Order model with validation in constructor
+ ┣ 📜 Customer.cs             # Customer model with validation in constructor
+ ┣ 📜 Program.cs              # Web application entry point with Swagger configuration
+ ┣ 📜 GuardClauses.csproj     # .NET web API project with NSwag package reference
+ ┗ 📜 TestGuardClauses.cs     # Console application to test guard clause functionality
+```
 
-## 🛠 Getting Started  
+## 🛠 Getting Started
 
-### Prerequisites  
-Ensure you have the following installed:  
-- .NET Core SDK  
-- A modern C# IDE (e.g., Visual Studio or JetBrains Rider)  
+### Prerequisites
+Ensure you have the following installed:
+- .NET 9.0 SDK or later
+- A modern C# IDE (e.g., Visual Studio, Visual Studio Code, or JetBrains Rider)
 
-### Step 1: Clone the Repository  
-```bash  
-git clone https://github.com/MrEshboboyev/guard-clauses.git  
-cd GuardClauses
-```  
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/MrEshboboyev/guard-clauses.git
+cd guard-clauses
+```
 
-### Step 2: Run the Console Application  
-```bash  
+### Step 2: Run the Web API
+```bash
 dotnet run --project GuardClauses
-```  
+```
 
-### Step 3: Explore the Code  
-Dive into the `Ensure` to see how guard clauses are implemented and used.  
+### Step 3: Access the API Documentation
+Navigate to `http://localhost:5000/swagger` to view the interactive API documentation.
 
-## 📖 Code Highlights  
+### Step 4: Test the Guard Clauses
+```bash
+dotnet run --project GuardClauses.Tests
+```
 
-### Built-In Guard Clauses Example  
-```csharp  
-static void ProcessOrder(Order order)
-{
-    Ensure.NotNull(order);
-    Ensure.NotNullOrEmpty(order.CustomerName);
-    Ensure.NotNullOrEmptyList(order.Products);
+### Step 5: Run Unit Tests
+```bash
+dotnet test --project GuardClauses.UnitTests
+```
 
-    Console.WriteLine($"User {order.CustomerName} has ordered:");
+## 📖 Code Highlights
 
-    foreach (var product in order.Products)
-    {
-        Console.WriteLine($"{product}");
-    }
-}
-```  
-
-### Custom Guard Clause Example  
-```csharp  
+### Advanced Guard Clause Implementation
+```csharp
 public static class Ensure
 {
-    public static void NotNull<T>(T? value, [CallerArgumentExpression("value")] string? paramName = null)
+    public static T NotNull<T>(T? value, [CallerArgumentExpression("value")] string? paramName = null) where T : class
     {
         if (value is null) throw new ArgumentNullException(
-            "The value cannot be null",
-            paramName);
+            paramName, "The value cannot be null");
+        return value;
     }
     
-    public static void NotNullOrEmpty(string? value, [CallerArgumentExpression("value")] string? paramName = null)
+    public static T InRange<T>(T value, T min, T max, [CallerArgumentExpression("value")] string? paramName = null) 
+        where T : IComparable<T>
     {
-        if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(
-            "The string cannot be null nor empty", 
-            paramName);
-    }
-    
-    public static void NotNullOrEmptyList<T>(List<T>? list, [CallerArgumentExpression("list")] string? paramName = null)
-    {
-        if (list is null || list.Count == 0)
+        if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
         {
-            throw new ArgumentException("The list should contain at least 1 item.", paramName);
+            throw new ArgumentOutOfRangeException(paramName, $"The value must be between {min} and {max}.");
         }
+        return value;
+    }
+    
+    public static string MatchesRegex(string value, string pattern, [CallerArgumentExpression("value")] string? paramName = null)
+    {
+        if (!System.Text.RegularExpressions.Regex.IsMatch(value, pattern))
+        {
+            throw new ArgumentException($"The value does not match the required pattern: {pattern}", paramName);
+        }
+        return value;
     }
 }
+```
 
-
-// Usage  
-static void ProcessOrder(Order order)
+### Model Validation with Guard Clauses
+```csharp
+public class Customer
 {
-    Ensure.NotNull(order);
-    Ensure.NotNullOrEmpty(order.CustomerName);
-    Ensure.NotNullOrEmptyList(order.Products);
-
-    Console.WriteLine($"User {order.CustomerName} has ordered:");
-
-    foreach (var product in order.Products)
+    public string Name { get; set; } = string.Empty;
+    public int Age { get; set; }
+    public string Email { get; set; } = string.Empty;
+    
+    public Customer(string name, int age, string email)
     {
-        Console.WriteLine($"{product}");
+        Name = Ensure.NotNullOrEmpty(name);
+        Age = Ensure.InRange(age, 13, 120);
+        Email = Ensure.MatchesRegex(Ensure.NotNullOrEmpty(email), @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
     }
-} 
-```  
+}
+```
 
-## 🌐 Practical Use Cases  
+### Controller Implementation with Guard Clauses
+```csharp
+[HttpPost]
+public IActionResult CreateCustomer([FromBody] CustomerRequest request)
+{
+    try
+    {
+        // Validate input using guard clauses
+        var name = Ensure.NotNullOrEmpty(request.Name);
+        var age = Ensure.InRange(request.Age, 13, 120);
+        var email = Ensure.MatchesRegex(Ensure.NotNullOrEmpty(request.Email), @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 
-### 1. Order Validation  
-- Ensure order quantity and price are valid before processing.  
+        // Create customer
+        var customer = new Customer(name, age, email);
+        // ... rest of implementation
+        
+        return CreatedAtAction(nameof(GetCustomer), new { email = customer.Email }, customer);
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(new { error = ex.Message });
+    }
+}
+```
 
-### 2. Customer Validation  
-- Validate customer data such as name and age during object instantiation.  
+## 🌐 Practical Use Cases
 
-## 🧪 Testing  
-The repository includes unit tests for both built-in and custom guard clauses.  
+### 1. Input Validation
+- Ensure API inputs meet business requirements before processing
+- Prevent invalid data from entering your domain models
 
-## 🌟 Why Use Guard Clauses?  
-1. **Fail Fast**: Identify and handle invalid inputs immediately.  
-2. **Readable Code**: Simplify method logic by removing nested validation checks.  
-3. **Reusable Logic**: Custom guard clauses make validation consistent and maintainable.  
+### 2. Domain Model Integrity
+- Guarantee that objects are always in a valid state
+- Fail-fast behavior prevents corrupted data propagation
 
-## 🏗 About the Author  
-This project was developed by [MrEshboboyev](https://github.com/MrEshboboyev), a software developer passionate about clean code, defensive programming, and scalable architectures.  
+### 3. API Error Handling
+- Consistent error responses with meaningful messages
+- Reduced boilerplate validation code
 
-## 📄 License  
-This project is licensed under the MIT License. Feel free to use and adapt the code for your own projects.  
+## 🧪 Testing Guard Clauses
 
-## 🔖 Tags  
-C#, .NET, Guard Clauses, Defensive Programming, Input Validation, Software Architecture, Clean Code, Error Handling, Console Application, Custom Implementation  
+All guard clauses are designed to be easily testable. Here's an example of how you could test the `NotNull` guard clause:
 
----  
+```csharp
+[Test]
+public void NotNull_WhenValueIsNull_ThrowsArgumentNullException()
+{
+    string? value = null;
+    
+    Assert.Throws<ArgumentNullException>(() => Ensure.NotNull(value));
+}
 
-Feel free to suggest additional features or ask questions! 🚀  
+[Test]
+public void NotNull_WhenValueIsNotNull_ReturnsValue()
+{
+    string value = "test";
+    
+    var result = Ensure.NotNull(value);
+    
+    Assert.AreEqual(value, result);
+}
+```
+
+We've also included comprehensive unit tests in the `GuardClauses.UnitTests` project that validate all guard clauses with various input scenarios.
+
+## 🌟 Benefits of Using Guard Clauses
+
+1. **Fail Fast**: Identify and handle invalid inputs immediately, preventing issues from propagating through your system.
+2. **Readable Code**: Simplify method logic by removing nested validation checks, making code easier to understand.
+3. **Reusable Logic**: Custom guard clauses make validation consistent and maintainable across your entire application.
+4. **Professional Quality**: Demonstrate craftsmanship through defensive programming practices that protect against runtime errors.
+5. **Self-Documenting**: Guard clauses serve as executable documentation of your method's preconditions.
+
+## 🏗 About the Author
+
+This project was developed by [MrEshboboyev](https://github.com/MrEshboboyev), a software developer passionate about clean code, defensive programming, and scalable architectures.
+
+## 📄 License
+
+This project is licensed under the MIT License. Feel free to use and adapt the code for your own projects.
+
+## 🔖 Tags
+
+C#, .NET, Guard Clauses, Defensive Programming, Input Validation, Software Architecture, Clean Code, Error Handling, Web API, REST, Swagger, NSwag, Unit Testing, Fluent API
+
+---
+
+Feel free to suggest additional features or ask questions! 🚀
