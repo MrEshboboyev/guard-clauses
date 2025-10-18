@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using GuardClauses.AdvancedGuards;
 
 namespace GuardClauses;
 
@@ -11,15 +12,29 @@ public class Customer
     
     public Customer(string name, int age, string email)
     {
-        Name = Ensure.NotNullOrEmpty(name);
-        Age = Ensure.InRange(age, 13, 120);
-        Email = Ensure.MatchesRegex(Ensure.NotNullOrEmpty(email), @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        // Using advanced fluent guard clauses
+        Name = Guard.For(name)
+            .NotNull()
+            .NotNullOrEmpty()
+            .Value;
+            
+        Age = Guard.For(age)
+            .NotNegative()
+            .InRange(13, 120)
+            .Value;
+            
+        Email = Guard.For(email)
+            .NotNull()
+            .NotNullOrEmpty()
+            .MatchesRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+            .Value;
+            
         Orders = [];
     }
     
     public void AddOrder(Order order)
     {
-        Ensure.NotNull(order);
+        Guard.For(order).NotNull();
         Orders.Add(order);
     }
     

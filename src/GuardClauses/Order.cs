@@ -1,4 +1,6 @@
-﻿namespace GuardClauses;
+﻿using GuardClauses.AdvancedGuards;
+
+namespace GuardClauses;
 
 public class Order
 {
@@ -11,11 +13,32 @@ public class Order
     
     public Order(string customerName, List<string> products, int quantity, decimal price, string email)
     {
-        CustomerName = Ensure.NotNullOrEmpty(customerName);
-        Products = new List<string>(Ensure.NotNullOrEmptyList(products));
-        Quantity = Ensure.NotZeroOrNegative(quantity);
-        Price = Ensure.NotZeroOrNegative(price);
-        Email = Ensure.MatchesRegex(Ensure.NotNullOrEmpty(email), @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        // Using advanced fluent guard clauses
+        CustomerName = Guard.For(customerName)
+            .NotNull()
+            .NotNullOrEmpty()
+            .Value;
+            
+        Products = Guard.For(products)
+            .NotNull()
+            .Value
+            .NotNullOrEmpty()
+            .ToList();
+            
+        Quantity = Guard.For(quantity)
+            .NotZeroOrNegative()
+            .Value;
+            
+        Price = Guard.For(price)
+            .NotZeroOrNegative()
+            .Value;
+            
+        Email = Guard.For(email)
+            .NotNull()
+            .NotNullOrEmpty()
+            .MatchesRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+            .Value;
+            
         OrderDate = DateTime.UtcNow;
     }
     

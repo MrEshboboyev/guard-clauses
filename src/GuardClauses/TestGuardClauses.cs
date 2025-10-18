@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using GuardClauses.AdvancedGuards.Examples;
 
 namespace GuardClauses;
 
 public class TestGuardClauses
 {
-    public static void Main(string[] args)
+    public static async System.Threading.Tasks.Task Main(string[] args)
     {
         Console.WriteLine("Testing Guard Clauses Implementation");
         Console.WriteLine("====================================");
@@ -102,6 +103,9 @@ public class TestGuardClauses
         {
             Console.WriteLine($"✗ Model creation failed: {ex.Message}");
         }
+        
+        // Run advanced guard examples
+        await AdvancedGuardDemo.RunAsync();
         
         Console.WriteLine("\nAll tests completed!");
     }
